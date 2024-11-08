@@ -400,3 +400,178 @@ When React updates a component:
 3. **DOM Updates**: These changes are then applied to the actual DOM, minimizing the operations and improving performance.
 
 ---
+
+
+# React with Tailwind CSS and Props
+
+## Setting up Tailwind with Vite
+
+To use Tailwind CSS with Vite, follow these steps:
+
+1. **Create Your Project**: Start by creating a new Vite project.
+   ```bash
+   npm create vite@latest my-project -- --template react
+   cd my-project
+   ```
+
+2. **Install Tailwind CSS**: Install Tailwind CSS and its peer dependencies, then generate the configuration files.
+   ```bash
+   npm install -D tailwindcss postcss autoprefixer
+   npx tailwindcss init -p
+   ```
+
+3. **Configure Template Paths**: Add paths to all your template files in the `tailwind.config.js` file.
+   ```js
+   // tailwind.config.js
+   export default {
+     content: [
+       "./index.html",
+       "./src/**/*.{js,ts,jsx,tsx}",
+     ],
+     theme: {
+       extend: {},
+     },
+     plugins: [],
+   }
+   ```
+
+4. **Add Tailwind Directives to CSS**: In your `index.css` file, add the Tailwind directives to load its layers.
+   ```css
+   @tailwind base;
+   @tailwind components;
+   @tailwind utilities;
+   ```
+
+5. **Start the Development Server**: Run your development server to see Tailwind CSS in action.
+   ```bash
+   npm run dev
+   ```
+
+## Using Tailwind in Your React Components
+
+With Tailwind installed, you can use utility classes in your React components for styling.
+
+**Example**:
+```jsx
+import React from 'react';
+import "./App.css";
+
+function App() {
+  return (
+    <a
+      href="#"
+      className="block max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700"
+    >
+      <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+        Noteworthy Technology Acquisitions 2021
+      </h5>
+      <p className="font-normal text-gray-700 dark:text-gray-400">
+        Here are the biggest enterprise technology acquisitions of 2021 so far, in reverse chronological order.
+      </p>
+    </a>
+  );
+}
+
+export default App;
+```
+
+# Props in React
+
+## Introduction to Props
+
+**Props** (short for "properties") in React are used to pass data from a parent component to a child component. They enable us to reuse components with different data, making our UI more dynamic and flexible.
+
+### Example of Using Props
+
+Suppose we have a reusable card component, and we want to display different content in each card.
+
+**Card Component (`Cards.jsx`)**:
+
+```jsx
+import React from 'react';
+
+function Cards({ username = "default name" }) {
+  return (
+    <a
+      href="#"
+      className="block max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 mb-4"
+    >
+      <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+        {username}
+      </h5>
+      <p className="font-normal text-gray-700 dark:text-gray-400">
+        Here are the biggest enterprise technology acquisitions of 2021, in reverse chronological order.
+      </p>
+    </a>
+  );
+}
+
+export default Cards;
+```
+
+In the parent component (`App.jsx`), we can reuse the `Cards` component multiple times and pass different values for the `username` prop:
+
+**Parent Component (`App.jsx`)**:
+
+```jsx
+import { useState } from "react";
+import Cards from "./components/Cards";
+
+function App() {
+  let myObj = { username: "gauri" };
+
+  return (
+    <>
+      <Cards username="thelite" />
+      <Cards username="gauri" />
+      <Cards username="john" someObj={myObj} />
+    </>
+  );
+}
+
+export default App;
+```
+
+### Passing Objects or Arrays to Props
+
+You can also pass objects or arrays as props:
+
+```jsx
+let myObj = {
+  username: "gauri"
+};
+
+return (
+  <>
+    <Cards username="thelite" someObj={myObj} />
+  </>
+);
+```
+
+### Destructuring Props for Cleaner Code
+
+To avoid repeatedly writing `props.[property]`, you can **destructure** the props in the function parameter:
+
+```jsx
+function Cards({ username = "default name" }) {
+  return (
+    <a
+      href="#"
+      className="block max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 mb-4"
+    >
+      <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+        {username}
+      </h5>
+      <p className="font-normal text-gray-700 dark:text-gray-400">
+        Here are the biggest enterprise technology acquisitions of 2021.
+      </p>
+    </a>
+  );
+}
+```
+
+### Default Props
+
+In the example above, we set a default value for the `username` prop in case it’s not provided. This ensures that the component will always have a fallback value to display.
+
+---
