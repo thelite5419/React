@@ -575,3 +575,88 @@ function Cards({ username = "default name" }) {
 In the example above, we set a default value for the `username` prop in case it’s not provided. This ensures that the component will always have a fallback value to display.
 
 ---
+
+# Interview Question on Counter 
+
+## Question: Why does the following code increment the counter by only 1 when the `addValue` function is called, despite calling `setCounter(counter + 1)` multiple times?
+
+```javascript
+import { useState } from "react";
+import "./App.css";
+
+function App() {
+  const [counter, setCounter] = useState(0);
+
+  const addValue = () => {
+    setCounter(counter + 1);
+    setCounter(counter + 1);
+    setCounter(counter + 1);
+    setCounter(counter + 1);
+    setCounter(counter + 1);
+  };
+
+  return (
+    <>
+      <h1>thelite</h1>
+      <h2>Counter value</h2>
+      <h3>is {counter}</h3>
+      <button onClick={addValue}>Add Value</button>
+    </>
+  );
+}
+
+export default App;
+```
+
+### Answer:
+When `addValue` is called, you might expect `counter` to increment by 5. However, the value only increments by 1. This behavior occurs because React batches state updates when they are called in quick succession within the same function or event handler.
+
+### Why Does This Happen?
+In React, state updates with `setCounter` are asynchronous and may be batched for performance reasons. Here’s why the counter only increments by 1:
+
+1. Each call to `setCounter(counter + 1)` uses the current `counter` value at the time the function `addValue` runs, which is `0` in this case.
+2. React will batch these updates and, because they are based on the same initial `counter` value, it only applies the last update, resulting in a single increment by 1.
+
+### How to Increment the Counter Multiple Times Properly
+To increment the counter multiple times as intended, use a functional update with `setCounter`. This way, each `setCounter` call receives the latest value of `counter`, allowing each increment to build on the previous one:
+
+```javascript
+function App() {
+  const [counter, setCounter] = useState(0);
+
+  const addValue = () => {
+    setCounter((prevCounter) => prevCounter + 1);
+    setCounter((prevCounter) => prevCounter + 1);
+    setCounter((prevCounter) => prevCounter + 1);
+    setCounter((prevCounter) => prevCounter + 1);
+    setCounter((prevCounter) => prevCounter + 1);
+  };
+
+  return (
+    <>
+      <h1>thelite</h1>
+      <h2>Counter value</h2>
+      <h3>is {counter}</h3>
+      <button onClick={addValue}>Add Value</button>
+    </>
+  );
+}
+
+export default App;
+```
+
+### Explanation
+In the revised code, each call to `setCounter` receives the latest updated value through the `prevCounter` argument. Here’s what happens on each call to `addValue`:
+- The first call updates `counter` from 0 to 1.
+- The second call updates `counter` from 1 to 2.
+- And so on, until it reaches 5.
+
+Using this approach, the counter will increment by 5 each time you click the button, as intended.
+
+### Key Takeaways
+- React batches state updates, so multiple calls to `setCounter(counter + 1)` in the same function can result in only one update.
+- Using a functional update `setCounter((prevCounter) => prevCounter + 1)` ensures each state update is based on the latest value.
+- This technique is essential when you want to perform multiple increments or when your new state depends on the current state.
+- 
+
+--- 
