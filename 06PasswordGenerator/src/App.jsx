@@ -30,7 +30,7 @@ function App() {
 
   useEffect(() => {
     passwordGenerator();
-  }, [length, numAllowed, charAllowed]);
+  }, [length, numAllowed, charAllowed, passwordGenerator]);
 
 
   const copyPassToClipboard = () => {
