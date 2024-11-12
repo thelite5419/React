@@ -660,3 +660,103 @@ Using this approach, the counter will increment by 5 each time you click the but
 - 
 
 --- 
+
+### 1. `useCallback`
+- **Purpose**: `useCallback` is a React Hook that caches a function definition between re-renders, which optimizes performance by preventing unnecessary re-creations of the same function.
+- **Why Use It**: When passing functions to child components or as dependencies in other hooks, React will often re-create these functions on each render, which can cause unnecessary re-renders and performance issues. `useCallback` helps by memoizing (caching) the function so that it’s not recreated unless one of its dependencies changes.
+  
+  **Syntax**:
+  ```javascript
+  const cachedFunction = useCallback(fn, [dependencies]);
+  ```
+
+- **Example**:
+  ```javascript
+  import React, { useState, useCallback } from 'react';
+
+  function ExampleComponent() {
+    const [count, setCount] = useState(0);
+
+    const incrementCount = useCallback(() => {
+      setCount(count + 1);
+    }, [count]);
+
+    return (
+      <div>
+        <p>Count: {count}</p>
+        <button onClick={incrementCount}>Increment</button>
+      </div>
+    );
+  }
+  ```
+
+- **Practical Use Case**:
+  In a scenario where multiple components (such as a password generator with different toggles) need to call the same function, `useCallback` prevents the function from being redefined on each render, thereby improving efficiency. Only when the dependencies change (e.g., selected length, include numbers, etc.) does React re-create the function.
+
+
+### 2. `useEffect`
+- **Purpose**: `useEffect` is a React Hook that lets you perform side effects in function components. It runs after every render, unless you specify dependencies that control when it should re-run.
+- **Why Use It**: Common use cases for `useEffect` include data fetching, updating the DOM, and setting up subscriptions or event listeners. It replaces the lifecycle methods `componentDidMount`, `componentDidUpdate`, and `componentWillUnmount`.
+
+  **Syntax**:
+  ```javascript
+  useEffect(() => {
+    // code to run after component mounts or updates
+    return () => {
+      // cleanup code to run on unmount
+    };
+  }, [dependencies]);
+  ```
+
+- **Example**:
+  ```javascript
+  import React, { useState, useEffect } from 'react';
+
+  function TimerComponent() {
+    const [seconds, setSeconds] = useState(0);
+
+    useEffect(() => {
+      const interval = setInterval(() => {
+        setSeconds((prev) => prev + 1);
+      }, 1000);
+
+      return () => clearInterval(interval); // cleanup on unmount
+    }, []); // empty dependency array means this runs only once on mount
+
+    return <div>Timer: {seconds}s</div>;
+  }
+  ```
+
+- **Practical Use Case**:
+  You might use `useEffect` to re-run certain code every time a dependency changes. For instance, in a password generator, you could run a `generatePassword` function every time a user changes the password length, toggles a button, or selects options. Setting these dependencies in the `useEffect` array ensures it re-runs only when necessary.
+
+
+
+### 3. `useRef`
+- **Purpose**: `useRef` is a hook that provides a way to access and manipulate a DOM element or to store any mutable value that persists across renders. Unlike `useState`, changing a `useRef` value doesn’t trigger a re-render.
+- **Why Use It**: `useRef` is useful for storing a reference to a DOM node (e.g., focusing an input field) or storing a mutable value that shouldn’t cause re-renders when updated (like a timer ID or a previous value).
+
+  **Syntax**:
+  ```javascript
+  const refContainer = useRef(initialValue);
+  ```
+
+- **Example**:
+  ```javascript
+  import React, { useRef, useEffect } from 'react';
+
+  function FocusInputComponent() {
+    const inputRef = useRef(null);
+
+    useEffect(() => {
+      inputRef.current.focus(); // Focus on the input when component mounts
+    }, []);
+
+    return <input ref={inputRef} type="text" placeholder="Focus on me!" />;
+  }
+  ```
+
+- **Practical Use Case**:
+  For example, in a form, `useRef` could be used to programmatically focus an input field or store the previous state of a variable that doesn’t need to trigger re-renders. It's also useful in handling mutable values across renders without causing additional renders.
+
+---
