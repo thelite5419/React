@@ -760,3 +760,169 @@ Using this approach, the counter will increment by 5 each time you click the but
   For example, in a form, `useRef` could be used to programmatically focus an input field or store the previous state of a variable that doesn’t need to trigger re-renders. It's also useful in handling mutable values across renders without causing additional renders.
 
 ---
+
+# Custom Hooks
+In React, custom hooks allow you to extract and reuse logic across multiple components, making your code more modular and easier to maintain. Here's a step-by-step guide on creating a custom hook, with an example.
+
+### 1. Setting Up the Custom Hook Folder
+- In the `src` folder of your React project, create a new folder named `Hooks` (or `hooks`).
+- Inside this folder, create a file for your custom hook. The file name should start with "use" to follow React's convention (e.g., `useCurrencyInfo.js`).
+
+### 2. Creating the Custom Hook
+A custom hook is simply a JavaScript function that uses built-in React hooks (e.g., `useState`, `useEffect`, etc.). Custom hooks should start with `use` as a naming convention, which also ensures they follow React’s hook rules.
+
+### Example: `useCurrencyInfo` Custom Hook
+
+Let's create a custom hook that fetches currency information. This hook could, for example, fetch the current exchange rates.
+
+**`src/Hooks/useCurrencyInfo.js`:**
+```javascript
+import { useEffect, useState } from "react";
+
+function useCurrencyInfo(currency) {
+    const [data, setData] = useState({});
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        if (!currency) return;
+
+        const fetchCurrencyInfo = async () => {
+            const url = `https://exchangerate-api.p.rapidapi.com/rapid/latest/${currency}`;
+            const options = {
+                method: 'GET',
+                headers: {
+                    'x-rapidapi-key': "5cb0d9e17cmsh4dea313c6f9d047p1c599fjsndf304ac8b8dd", 
+                    'x-rapidapi-host': 'exchangerate-api.p.rapidapi.com'
+                }
+            };
+            
+            try {
+                const response = await fetch(url, options);
+                if (!response.ok) throw new Error('Network response was not ok');
+                const result = await response.json();
+                console.log(result.rates)
+                setData(result.rates || {});
+            } catch (error) {
+                console.error("Fetch error:", error.message);
+                setError(error.message);
+            }
+        };
+
+        fetchCurrencyInfo();
+    }, [currency]);
+
+    return { data, error };
+}
+
+export default useCurrencyInfo; // Default export
+
+```
+
+### 3. Using the Custom Hook in a Component
+
+Once you’ve created your custom hook, you can use it in any component just like a built-in React hook.
+
+**Example Component Using `useCurrencyInfo`:**
+
+```javascript
+import { useState } from 'react';
+import { InputBox } from './components';
+import useCurrencyInfo from './Hooks/useCurrencyInfo';
+
+function App() {
+  const [amount, setAmount] = useState("");
+  const [to, toSet] = useState("INR");
+  const [from, setFrom] = useState("USD");
+  const [convertedAmount, setConvertedAmount] = useState(0);
+
+  const { data: currencyInfo, error } = useCurrencyInfo(from);
+  const options = Object.keys(currencyInfo);
+
+  const swap = () => {
+    toSet(from);
+    setFrom(to);
+  };
+
+  const convert = () => {
+    if (currencyInfo[from] && currencyInfo[to]) {
+      const fromRate = currencyInfo[from];
+      const toRate = currencyInfo[to];
+  
+      // Convert amount based on the rates
+      const conversionRate = toRate / fromRate;
+      setConvertedAmount(amount * conversionRate);
+    } else {
+      // If no rate is found, set converted amount to 0
+      setConvertedAmount(0);
+    }
+  };
+
+  return (
+    <div
+      className="w-full h-screen flex flex-wrap justify-center items-center bg-cover bg-no-repeat"
+      style={{
+        backgroundImage: `url('https://www.istockphoto.com/photo/businesswoman-using-digital-tablet-with-holding-bar-graph-gm1225058659-360453706?utm_campaign=srp_photos_top&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Ftrading&utm_medium=affiliate&utm_source=unsplash&utm_term=trading%3A%3Aaffiliate-collections%3Aa')`,
+      }}
+    >
+      <div className="w-full">
+        <div className="w-full max-w-md mx-auto border border-gray-60 rounded-lg p-5 backdrop-blur-sm bg-white/30">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              convert();
+            }}
+          >
+            <div className="w-full mb-1">
+              <InputBox
+                label="From"
+                amount={amount}
+                currencyOption={options}
+                onAmountChange={(value) => setAmount(value)}
+                onCurrencyChange={(currency) => setFrom(currency)}
+                selectCurrency={from}
+              />
+            </div>
+            <div className="relative w-full h-0.5">
+              <button
+                type="button"
+                className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 border-2 border-white rounded-md bg-blue-600 text-white px-2 py-0.5"
+                onClick={swap}
+              >
+                swap
+              </button>
+            </div>
+            <div className="w-full mt-1 mb-4">
+              <InputBox
+                label="To"
+                amount={convertedAmount}
+                currencyOption={options}
+                onCurrencyChange={(currency) => toSet(currency)}
+                selectCurrency={to}
+                amountDisable
+              />
+            </div>
+            <button type="submit" className="w-full bg-blue-600 text-white px-4 py-3 rounded-lg">
+              Convert {from.toUpperCase()} to {to.toUpperCase()}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default App;
+
+```
+
+### Key Points
+1. **Naming Convention**: Start custom hook names with `use` (e.g., `useCurrencyInfo`) to follow React conventions and ensure that React treats it as a hook.
+2. **Logic Reusability**: Custom hooks allow you to reuse logic across components without duplicating code.
+3. **Return Values**: Custom hooks can return any value(s) you need in your component, including multiple values via an object.
+
+### Benefits of Custom Hooks
+- **Code Organization**: Keeps components clean and focused on rendering by moving logic to the hook.
+- **Reusability**: Centralizes logic that can be used across multiple components.
+- **Testing**: Makes it easier to test isolated logic
+
+---
