@@ -926,3 +926,113 @@ export default App;
 - **Testing**: Makes it easier to test isolated logic
 
 ---
+
+# React Router
+React Router is an external library for React applications, allowing for efficient, client-side navigation without reloading the entire page. Here’s a breakdown of its key components and usage:
+
+### 1. Basic Routing with React Router
+React Router is installed separately (`npm install react-router-dom`) and provides several key components like `Link`, `NavLink`, `Route`, and `Outlet`.
+
+- **Link**: Replaces the `<a>` tag in HTML to navigate between routes without page reload. In `Link`, use `to="/"` instead of `href` to set the target path.
+  
+- **NavLink**: Similar to `Link`, but allows additional styling based on the active route. For example:
+  ```jsx
+  <NavLink to="/" className={({ isActive }) => isActive ? "text-orange-700" : "text-gray-700"}>
+    Home
+  </NavLink>
+  ```
+
+### 2. Setting Up Routes
+Set up your routes in `main.jsx` or a similar entry point file. Use `createBrowserRouter` and `RouterProvider` for route configuration and rendering.
+
+**Example in `main.jsx`**:
+```jsx
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import './index.css';
+import App from './App.jsx';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import Layout from './Layout';
+
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <Layout />,
+    children: [
+      { path: 'home', element: <Home /> },
+      { path: 'about', element: <About /> },
+      { path: 'contact', element: <Contact /> },
+      { path: 'user/:userid', element: <User /> },
+    ],
+  },
+]);
+
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <RouterProvider router={router} />
+  </StrictMode>
+);
+```
+
+### 3. Layout and Outlet
+For components like headers or footers that should remain on the page across different routes, use the `Outlet` component to render child routes dynamically within a layout.
+
+**Example in `Layout.jsx`**:
+```jsx
+import React from 'react';
+import { Header } from './components/Header/Header';
+import { Footer } from './components/Footer/Footer';
+import { Outlet } from 'react-router-dom';
+
+function Layout() {
+  return (
+    <div>
+      <Header />
+      <Outlet />  {/* Renders the current route's component */}
+      <Footer />
+    </div>
+  );
+}
+
+export default Layout;
+```
+
+### 4. Dynamic Route Parameters with `useParams`
+React Router’s `useParams` hook allows you to access dynamic segments in a route, such as user IDs.
+
+**Example of using `useParams` in `User.jsx`**:
+```jsx
+import React from 'react';
+import { useParams } from 'react-router-dom';
+
+function User() {
+  const { userid } = useParams();
+  return <div>User ID: {userid}</div>;
+}
+
+export default User;
+```
+
+### 5. Loading Data with Loaders
+Loaders in React Router allow you to fetch data before rendering a component. This data can then be accessed via the `useLoaderData` hook.
+
+**Example of using a loader function**:
+```jsx
+import { useLoaderData } from 'react-router-dom';
+
+export const GithubInfoLoader = async () => {
+  const url = 'https://api.github.com/users/thelite5419';
+  const res = await fetch(url);
+  return res.json();
+};
+
+function UserProfile() {
+  const data = useLoaderData();
+  return <div>User: {data.name}</div>;
+}
+
+// Use the loader in your route setup:
+<Route path="/user-profile" element={<UserProfile />} loader={GithubInfoLoader} />
+```
+
+---
