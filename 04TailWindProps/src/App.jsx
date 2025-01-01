@@ -10,7 +10,7 @@ function App() {
     <>
       <Cards username="thelite" someObj={myObj}/>
       <Cards username="gauri"/>
-      <Cards />
+      <Cards someObj={myObj}/>
     </>
   );
 }

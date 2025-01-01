@@ -20,7 +20,7 @@ function InputBox({
           type="number"
           placeholder="Amount"
           disabled={amountDisable}
-          value={amount || 0}  // Ensure `amount` has a default fallback
+          value={amount}  // Ensure `amount` has a default fallback
           onChange={(e) =>
             onAmountChange && onAmountChange(Number(e.target.value))
           }
